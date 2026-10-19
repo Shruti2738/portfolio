@@ -19,16 +19,30 @@ export default function Footer() {
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
 
   useEffect(() => {
-    // Optional bonus: fetch recently pushed repos, fails silently
-    fetch("/api/github")
-      .then((res) => (res.ok ? res.json() : { repos: [] }))
+    fetch(
+      "https://api.github.com/users/Shruti2738/repos?sort=pushed&per_page=4",
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+        },
+      }
+    )
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (Array.isArray(data.repos) && data.repos.length > 0) {
-          setRepos(data.repos.slice(0, 3));
+        if (Array.isArray(data) && data.length > 0) {
+          setRepos(
+            data.slice(0, 3).map((repo) => ({
+              name: repo.name,
+              url: repo.html_url,
+              description: repo.description,
+              stars: repo.stargazers_count,
+              language: repo.language,
+            }))
+          );
         }
       })
       .catch(() => {
-        // Fail silently
+        // Fail silently if GitHub is unavailable.
       });
   }, []);
 
@@ -39,37 +53,41 @@ export default function Footer() {
   const fullName = "SHRUTI RAVIKUMAR";
 
   return (
-    <footer className="relative w-full bg-[var(--band-cream)] pt-16 border-t border-[var(--umber)]/20 overflow-hidden">
+    <footer className="relative w-full overflow-hidden border-t border-[#35251F]/20 bg-[#F3E9DC] pt-16 text-[#35251F] dark:border-[#F3E9DC]/20 dark:bg-[#35251F] dark:text-[#F3E9DC]">
       <div className="content-constraint flex flex-col justify-between">
-        {/* Optional Recently Pushed Strip (if available) */}
+        {/* Recently Active Repositories */}
         {repos.length > 0 && (
-          <div className="mb-12 pb-8 border-b border-[var(--umber)]/15">
-            <div className="flex items-center gap-2 mb-4 text-xs uppercase tracking-widest font-semibold text-[var(--umber)]/60">
-              <IconGitHub className="w-3.5 h-3.5 text-[var(--bronze)]" />
+          <div className="mb-12 border-b border-[#35251F]/15 pb-8 dark:border-[#F3E9DC]/20">
+            <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[#5A463D] dark:text-[#F3E9DC]/75">
+              <IconGitHub className="h-3.5 w-3.5 text-[#8A5B36] dark:text-[#D0A16B]" />
               <span>Recently Active Repositories</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {repos.map((repo) => (
                 <a
                   key={repo.name}
                   href={repo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-4 bg-[var(--umber)]/5 border border-[var(--umber)]/15 hover:border-[var(--bronze)] transition-all group flex flex-col justify-between"
+                  className="group flex flex-col justify-between border border-[#35251F]/15 bg-[#35251F]/5 p-4 transition-all hover:border-[#8A5B36] dark:border-[#F3E9DC]/20 dark:bg-[#F3E9DC]/5 dark:hover:border-[#D0A16B]"
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-semibold text-sm text-[var(--umber)] truncate">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-semibold text-[#35251F] dark:text-[#F3E9DC]">
                       {repo.name}
                     </span>
-                    <IconArrowUpRight className="w-3.5 h-3.5 text-[var(--bronze)] group-hover:translate-x-0.5 transition-transform" />
+
+                    <IconArrowUpRight className="h-3.5 w-3.5 shrink-0 text-[#8A5B36] transition-transform group-hover:translate-x-0.5 dark:text-[#D0A16B]" />
                   </div>
+
                   {repo.description && (
-                    <p className="text-xs text-[var(--umber)]/70 line-clamp-1 mb-2">
+                    <p className="mb-2 line-clamp-1 text-xs text-[#5A463D] dark:text-[#F3E9DC]/75">
                       {repo.description}
                     </p>
                   )}
+
                   {repo.language && (
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[var(--bronze)] font-semibold">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-[#8A5B36] dark:text-[#D0A16B]">
                       {repo.language}
                     </span>
                   )}
@@ -79,40 +97,42 @@ export default function Footer() {
           </div>
         )}
 
-        {/* Top Row: Copyright / Links / Back to Top */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-16 border-b border-[var(--umber)]/20">
-          {/* Left: Copyright */}
-          <div className="text-sm font-semibold text-[var(--umber)]/80 order-2 md:order-1 text-center md:text-left">
+        {/* Copyright, Social Links and Back to Top */}
+        <div className="flex flex-col items-center justify-between gap-8 border-b border-[#35251F]/20 pb-16 dark:border-[#F3E9DC]/20 md:flex-row">
+          {/* Copyright */}
+          <div className="order-2 text-center text-sm font-semibold text-[#5A463D] dark:text-[#F3E9DC]/80 md:order-1 md:text-left">
             © 2026 Shruti Ravikumar. All rights reserved.
           </div>
 
-          {/* Center: Social Links */}
-          <div className="flex items-center gap-8 text-sm font-semibold text-[var(--umber)] order-1 md:order-2">
+          {/* Social Links */}
+          <div className="order-1 flex items-center gap-8 text-sm font-semibold md:order-2">
             <a
               href={SITE_CONTENT.personal.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[var(--plum)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
+              className="text-[#35251F] transition-colors hover:text-[#8A5B36] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#8A5B36] dark:text-[#F3E9DC] dark:hover:text-[#D0A16B] dark:focus-visible:outline-[#D0A16B]"
             >
               LinkedIn
             </a>
+
             <a
               href={SITE_CONTENT.personal.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[var(--plum)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
+              className="text-[#35251F] transition-colors hover:text-[#8A5B36] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#8A5B36] dark:text-[#F3E9DC] dark:hover:text-[#D0A16B] dark:focus-visible:outline-[#D0A16B]"
             >
               GitHub
             </a>
+
             <a
-              href={`mailto:${SITE_CONTENT.personal.email}`}
-              className="hover:text-[var(--plum)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
+              href={"mailto:" + SITE_CONTENT.personal.email}
+              className="text-[#35251F] transition-colors hover:text-[#8A5B36] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#8A5B36] dark:text-[#F3E9DC] dark:hover:text-[#D0A16B] dark:focus-visible:outline-[#D0A16B]"
             >
               Email
             </a>
           </div>
 
-          {/* Right: 56px Circular Back-to-Top Button */}
+          {/* Back to Top */}
           <div className="order-3">
             <Magnetic strength={0.25} radius={60}>
               <button
@@ -121,12 +141,15 @@ export default function Footer() {
                 onMouseEnter={() => setArrowRotated(true)}
                 onMouseLeave={() => setArrowRotated(false)}
                 aria-label="Back to top"
-                className="w-14 h-14 rounded-full border border-[var(--umber)]/30 text-[var(--umber)] flex items-center justify-center hover:bg-[var(--plum)] hover:text-[var(--paper)] transition-all cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
+                className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border border-[#35251F]/30 text-[#35251F] transition-all hover:bg-[#65405D] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#8A5B36] dark:border-[#F3E9DC]/40 dark:text-[#F3E9DC] dark:hover:bg-[#D0A16B] dark:hover:text-[#35251F] dark:focus-visible:outline-[#D0A16B]"
               >
                 <motion.span
                   animate={{ rotate: arrowRotated ? 360 : 0 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-xl inline-block"
+                  transition={{
+                    duration: 0.5,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-xl"
                 >
                   ↑
                 </motion.span>
@@ -135,9 +158,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Beneath: Giant Cropped Name with Wave Hover */}
-        <div className="relative w-full overflow-hidden pt-8 select-none">
-          <div className="flex justify-center whitespace-nowrap -mb-[3.5vw]">
+        {/* Giant Cropped Name */}
+        <div className="relative w-full select-none overflow-hidden pt-8">
+          <div className="-mb-[3.5vw] flex justify-center whitespace-nowrap">
             {fullName.split("").map((letter, i) => (
               <motion.span
                 key={i}
@@ -147,9 +170,10 @@ export default function Footer() {
                   stiffness: 220,
                   damping: 24,
                 }}
-                className={`font-anton text-[15vw] leading-none uppercase tracking-tighter text-[var(--umber)] dark:text-[var(--paper)] inline-block transition-colors cursor-default ${
-                  letter === " " ? "w-[4vw]" : ""
-                }`}
+                className={
+                  "inline-block cursor-default font-anton text-[15vw] uppercase leading-none tracking-tighter text-[#35251F] transition-colors dark:text-[#F3E9DC] " +
+                  (letter === " " ? "w-[4vw]" : "")
+                }
               >
                 {letter}
               </motion.span>

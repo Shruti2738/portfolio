@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="night"], [data-theme="night"] *));
+
 :root {
   /* Luminous high-contrast palette */
   --cream: #FAF7F0; /* Clean luminous ivory/alabaster */
@@ -164,4 +166,26 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* Theme-aware contrast safeguards for fixed plum surfaces. */
+.plum-surface {
+  background-color: var(--plum);
+  color: var(--paper);
+}
+.plum-surface :is(h1, h2, h3, h4, p, span, li, a, button) {
+  color: inherit;
+}
+.plum-surface a:focus-visible,
+.plum-surface button:focus-visible {
+  outline-color: var(--paper);
+}
+
+/* Keep muted text readable when the selected theme changes. */
+[data-theme="night"] {
+  color-scheme: dark;
+}
+:root:not([data-theme="night"]) {
+  color-scheme: light;
 }

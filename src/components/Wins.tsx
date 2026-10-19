@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -23,7 +24,6 @@ export default function Wins() {
     >
       <div className="content-constraint">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          {/* Left Title Column (4 cols, sticky on desktop) */}
           <div className="lg:col-span-4 lg:sticky lg:top-[120px] mb-8 lg:mb-0">
             <span className="w-12 h-1 bg-[var(--paper)] block mb-4" />
             <RevealLines
@@ -36,16 +36,14 @@ export default function Wins() {
             </p>
           </div>
 
-          {/* Right Deck Column (8 cols, stacking sticky card deck) */}
           <div className="lg:col-span-8 flex flex-col gap-8 lg:gap-10">
-            {/* Card 1: Featured DECODE SIH 2026 (tall, --plum, --paper text) */}
+            {/* DECODE SIH 2026 */}
             <div
               onMouseEnter={() => setFeaturedHovered(true)}
               onMouseLeave={() => setFeaturedHovered(false)}
               style={{ top: "120px" }}
               className="lg:sticky relative bg-[var(--plum)] text-[var(--paper)] p-6 sm:p-10 border border-[var(--paper)]/15 transition-transform duration-300 overflow-hidden"
             >
-              {/* Bronze Corner Triangle on Hover */}
               <div
                 className={`absolute top-0 right-0 w-0 h-0 border-t-[36px] border-t-[var(--bronze)] border-l-[36px] border-l-transparent transition-opacity duration-300 pointer-events-none z-20 ${
                   featuredHovered ? "opacity-100" : "opacity-0"
@@ -53,17 +51,17 @@ export default function Wins() {
               />
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                {/* Photo Left 45% (md: 5 cols) */}
                 <div className="md:col-span-5 relative aspect-[4/3] overflow-hidden bg-[var(--umber)]">
                   <motion.div
                     animate={{ scale: featuredHovered ? 1.05 : 1 }}
                     transition={{ type: "spring", stiffness: 220, damping: 24 }}
-                    className="w-full h-full"
+                    className="relative w-full h-full"
                   >
                     <ImageWithFallback
                       src={decodeSih.image || "/images/decode-sih.jpg"}
                       alt="DECODE SIH 2026 first place presentation"
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 42vw, 30vw"
                       className="object-cover"
                       fallbackBg="var(--umber)"
                       fallbackColor="var(--paper)"
@@ -72,7 +70,6 @@ export default function Wins() {
                   </motion.div>
                 </div>
 
-                {/* Text Right (md: 7 cols) */}
                 <div className="md:col-span-7 flex flex-col items-start">
                   <div className="inline-block px-3 py-1 bg-[var(--bronze)] text-[var(--paper)] text-xs font-semibold uppercase tracking-wider mb-4 rounded-full">
                     {decodeSih.highlightChip}
@@ -90,13 +87,12 @@ export default function Wins() {
               </div>
             </div>
 
-            {/* Card 2: Abu Dhabi University (--cream, --umber text) */}
+            {/* Abu Dhabi University */}
             <div
               style={{ top: "140px" }}
               className="lg:sticky relative bg-[var(--cream)] text-[var(--umber)] p-6 sm:p-10 border border-[var(--umber)]/15 transition-transform duration-300 overflow-hidden"
             >
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                {/* Text Left (md: 7 cols) */}
                 <div className="md:col-span-7 flex flex-col items-start order-2 md:order-1">
                   <span className="font-inter font-semibold text-xs uppercase tracking-widest text-[var(--bronze)] mb-1">
                     Academic Competition
@@ -122,12 +118,12 @@ export default function Wins() {
                   </div>
                 </div>
 
-                {/* Photo Right (md: 5 cols) */}
                 <div className="md:col-span-5 relative aspect-[4/3] overflow-hidden bg-[var(--umber)] order-1 md:order-2">
                   <ImageWithFallback
                     src={adu.image || "/images/adu.jpg"}
                     alt="Abu Dhabi University competition award"
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 42vw, 30vw"
                     className="object-cover"
                     fallbackBg="var(--bronze)"
                     fallbackColor="var(--paper)"
@@ -137,7 +133,7 @@ export default function Wins() {
               </div>
             </div>
 
-            {/* Card 3: Schneider Electric (--mauve, --ink text) */}
+            {/* Schneider Electric */}
             <div
               style={{ top: "160px" }}
               className="lg:sticky relative bg-[var(--mauve)] text-[var(--ink)] p-6 sm:p-10 border border-[var(--ink)]/15 transition-transform duration-300"
@@ -158,7 +154,7 @@ export default function Wins() {
               </div>
             </div>
 
-            {/* Card 4: Google The Big Code 2026 (--bronze, --ink text) */}
+            {/* Google The Big Code 2026 */}
             <div
               style={{ top: "180px" }}
               className="lg:sticky relative bg-[var(--bronze)] text-[var(--ink)] p-6 sm:p-10 border border-[var(--ink)]/20 transition-transform duration-300"
@@ -178,7 +174,7 @@ export default function Wins() {
               </div>
             </div>
 
-            {/* Card 5: Participation Chips (--umber, --paper text) */}
+            {/* Participation */}
             <div
               style={{ top: "200px" }}
               className="lg:sticky relative bg-[var(--band-umber)] text-[var(--paper)] p-6 sm:p-10 border border-[var(--paper)]/15 transition-transform duration-300"
@@ -190,7 +186,6 @@ export default function Wins() {
                 Active participant in intensive engineering marathons and competitive programming arenas.
               </p>
 
-              {/* Cloud of Pill Chips with 4px lift and color inversion on hover */}
               <div className="flex flex-wrap gap-3">
                 {participation.pills?.map((pill, idx) => (
                   <motion.div

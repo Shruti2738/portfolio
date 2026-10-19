@@ -23,6 +23,7 @@ export default function Roles() {
       className="relative w-full bg-[var(--band-cream)] band-padding border-t border-[var(--umber)]/20"
     >
       <div className="content-constraint">
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-[var(--bronze)]">Leadership &amp; contribution</p>
         <div className="w-12 h-1 bg-[var(--bronze)] mb-4" />
         <RevealLines
           as="h2"
@@ -150,17 +151,30 @@ export default function Roles() {
                               ))}
                             </ul>
 
-                            {pos.repoUrl && (
-                              <div className="mt-6">
-                                <a
-                                  href={pos.repoUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--plum)] text-[var(--paper)] text-sm font-semibold hover:bg-[var(--bronze)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
-                                >
-                                  <span>View AUV-Tasks repo</span>
-                                  <IconArrowUpRight className="w-4 h-4" />
-                                </a>
+                            {(pos.repoUrl || pos.projectUrl) && (
+                              <div className="mt-6 flex flex-wrap gap-3">
+                                {pos.repoUrl && (
+                                  <a
+                                    href={pos.repoUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--plum)] text-[var(--paper)] text-sm font-semibold hover:bg-[var(--bronze)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
+                                  >
+                                    <span>{pos.repoLabel || "View repository"}</span>
+                                    <IconArrowUpRight className="w-4 h-4" />
+                                  </a>
+                                )}
+                                {pos.projectUrl && (
+                                  <a
+                                    href={pos.projectUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--plum)] text-[var(--paper)] text-sm font-semibold hover:bg-[var(--bronze)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--bronze)]"
+                                  >
+                                    <span>{pos.projectLabel || "View project"}</span>
+                                    <IconArrowUpRight className="w-4 h-4" />
+                                  </a>
+                                )}
                               </div>
                             )}
                           </div>

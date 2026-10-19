@@ -8,7 +8,6 @@ import {
   VisualAura,
   VisualUpTimeX,
   VisualPitWall,
-  VisualDashingRaptor,
 } from "./ProjectVisuals";
 import { IconArrowUpRight, IconGitHub } from "./Icons";
 
@@ -88,8 +87,6 @@ export default function ProjectCard({
         return <VisualUpTimeX />;
       case "pitwall":
         return <VisualPitWall />;
-      case "dashing-raptor":
-        return <VisualDashingRaptor />;
       default:
         return null;
     }

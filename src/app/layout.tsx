@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import { Anton, Inter } from "next/font/google";
 import "./globals.css";
@@ -103,10 +104,13 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="night"){document.documentElement.setAttribute("data-theme","night")}else{document.documentElement.removeAttribute("data-theme")}}catch(e){}})()`,
           }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+<Script
+  id="theme-initialization"
+  strategy="beforeInteractive"
+  dangerouslySetInnerHTML={{
+    __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="night"){document.documentElement.setAttribute("data-theme","night")}else{document.documentElement.removeAttribute("data-theme")}}catch(e){}})()`,
+  }}
+/>
       </head>
       <body className="font-inter bg-[var(--band-cream)] text-[var(--text-main)] transition-colors duration-300">
         {/* Skip to main content link */}

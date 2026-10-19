@@ -18,6 +18,7 @@ export default function ImageWithFallback({
   alt,
   className,
   style,
+  sizes = "(max-width: 768px) 100vw, 50vw",
   ...rest
 }: ImageWithFallbackProps) {
   const [error, setError] = useState(false);
@@ -50,13 +51,23 @@ export default function ImageWithFallback({
     );
   }
 
+  const src = rest.src;
+  const imageSrc =
+    typeof src === "string" &&
+    src.startsWith("/") &&
+    !src.startsWith("//")
+      ? `/portfolio${src}`
+      : src;
+
   return (
     <Image
+      {...rest}
+      src={imageSrc}
       alt={alt}
       className={className}
       style={style}
+      sizes={sizes}
       onError={() => setError(true)}
-      {...rest}
     />
   );
 }

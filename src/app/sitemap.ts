@@ -1,13 +1,15 @@
+
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://shrutiravikumar.vercel.app";
+  const baseUrl = "https://shruti2738.github.io/portfolio";
 
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: new Date("2026-10-19"),
       changeFrequency: "weekly",
       priority: 1.0,
     },

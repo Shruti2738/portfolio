@@ -288,7 +288,7 @@ export default function Hero() {
                   height={750}
                   priority
                   className="w-full h-auto object-cover object-bottom select-none"
-                  style={{ filter: "grayscale(1) contrast(1.1)" }}
+                  style={{ filter: "none" }}
                   fallbackContent={
                     <div className="w-full h-[400px] sm:h-[480px] bg-[var(--mauve)] flex flex-col items-center justify-center text-[var(--ink)] p-8">
                       <div className="w-24 h-24 rounded-full border-2 border-[var(--ink)] flex items-center justify-center mb-4">

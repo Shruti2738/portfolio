@@ -44,6 +44,9 @@ export interface RoleItem {
   org: string;
   bullets: string[];
   repoUrl?: string;
+  repoLabel?: string;
+  projectUrl?: string;
+  projectLabel?: string;
   image?: string;
 }
 
@@ -102,7 +105,7 @@ export const SITE_CONTENT = {
       id: "decode-sih",
       title: "Winner, Bharat Nirman Track",
       event: "DECODE SIH 2026",
-      highlightChip: "3000 cash prize",
+      highlightChip: "Rs.30,000 cash prize",
       image: "/images/decode-sih.jpg",
       bgToken: "plum",
       description:
@@ -116,12 +119,12 @@ export const SITE_CONTENT = {
       bgToken: "cream",
       subItems: [
         {
-          label: "1st Place · Python Programming",
-          prize: "3000 Dhs",
+          label: "1st Place · STEM Programming Competition",
+          prize: "AED 3000",
         },
         {
-          label: "2nd Place · Sustainability in Tech-Product Elevator Pitch",
-          prize: "2500 Dhs",
+          label: "2nd Place · College of Engineering Hackathon",
+          prize: "AED 2500",
         },
       ],
     },
@@ -162,13 +165,17 @@ export const SITE_CONTENT = {
       org: "The Developers Club, IIITDM Kancheepuram",
       bullets: [
         "Coordinate technical events, workshops, and developer activities across the institute.",
+        "Contribute to the Automated Dependency Vulnerability Patching System, which detects vulnerable dependencies, validates patches, and opens reviewable pull requests.",
       ],
+      projectUrl: "https://github.com/DevClubIIITDM/cve_patcher",
+      projectLabel: "Automated Dependency Vulnerability Patching System",
     },
     {
       id: "auv-society",
       role: "Software Subsystem Team Member",
       org: "AUV Society, IIITDM Kancheepuram",
       repoUrl: "https://github.com/Shruti2738/AUV-Tasks",
+      repoLabel: "View AUV-Tasks repo",
       bullets: [
         "Develop ROS 2 Python nodes for inter-node communication, data processing, and autonomous navigation.",
         "Implement computer vision pipelines using OpenCV, HSV-based object tracking, and state-machine-driven visual processing.",
@@ -245,7 +252,6 @@ export const SITE_CONTENT = {
       tags: ["mBot", "Robotics"],
       summary:
         "Autonomous ranger robot engineered with mBot hardware, ultrasonic sweep detection, and basic autonomous control.",
-      image: "/images/bot.png",
       bullets: [
         "Built and programmed a ranger robot using mBot, integrating sensors, movement, and basic autonomous control.",
       ],
@@ -349,8 +355,7 @@ export const SITE_CONTENT = {
       institution: "Indian Institute of Information Technology, Design and Manufacturing, Kancheepuram",
       period: "2025 – Present",
       type: "education",
-      description:
-        "Undergraduate engineering program specializing in systems design, algorithms, robotics, and computer vision.",
+      description: "Undergraduate Computer Science engineering program",
     },
     {
       id: "high-school",
@@ -368,7 +373,7 @@ export const SITE_CONTENT = {
       period: "Certification",
       type: "certification",
       description:
-        "Deep-dive into transformer architectures, pre-training, instruction fine-tuning, PEFT/LoRA, RLHF, and LLM application deployment.",
+        "A foundational course on generative AI and large language models, exploring how they work, the latest research, and real-world applications through expert instruction from AWS AI practitioners.",
       link: {
         url: "https://coursera.org/share/9caa822961e486f14ef978dffdb3a002",
         label: "View Certificate",

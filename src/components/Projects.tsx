@@ -22,6 +22,7 @@ export default function Projects() {
       className="relative w-full bg-[var(--band-cream)] band-padding border-t border-[var(--umber)]/20"
     >
       <div className="content-constraint">
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-[var(--bronze)]">Projects &amp; engineering</p>
         <div className="w-12 h-1 bg-[var(--bronze)] mb-4" />
         <RevealLines
           as="h2"

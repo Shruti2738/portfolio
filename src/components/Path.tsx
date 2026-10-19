@@ -1,96 +1,153 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useInView } from "motion/react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useInView,
+} from "motion/react";
 import { SITE_CONTENT, PathItem } from "@/content/site";
 import RevealLines from "./RevealLines";
 import { IconArrowUpRight } from "./Icons";
 
 function PathNodeCard({
   item,
+  index,
   isLeft,
 }: {
   item: PathItem;
+  index: number;
   isLeft: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.35 });
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   return (
     <div
       ref={ref}
-      className={`relative flex items-center mb-16 last:mb-0 w-full ${
-        isLeft ? "lg:flex-row-reverse" : "lg:flex-row"
+      className={`relative mb-10 flex w-full last:mb-0 ${
+        isLeft ? "lg:justify-start" : "lg:justify-end"
       }`}
     >
-      {/* Content Block (Occupies half width on desktop) */}
-      <div
-        className={`w-full lg:w-1/2 pl-12 lg:pl-0 ${
-          isLeft ? "lg:pr-14 lg:text-right" : "lg:pl-14 lg:text-left"
-        }`}
-      >
-        <motion.div
-          initial={{ opacity: 0, transform: isLeft ? "translate3d(-20px, 0, 0)" : "translate3d(20px, 0, 0)" }}
+      <div className="relative w-full pl-10 lg:w-[calc(50%-36px)] lg:pl-0">
+        <motion.article
+          initial={{
+            opacity: 0,
+            y: 20,
+            x: isLeft ? -12 : 12,
+          }}
           animate={
             isInView
-              ? { opacity: 1, transform: "translate3d(0, 0, 0)" }
-              : undefined
+              ? { opacity: 1, y: 0, x: 0 }
+              : { opacity: 0, y: 20, x: isLeft ? -12 : 12 }
           }
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="p-6 bg-[var(--paper)]/40 border border-[var(--ink)]/15 flex flex-col"
+          transition={{
+            duration: 0.5,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="group relative overflow-hidden border border-[var(--ink)]/15 bg-[var(--paper)]/60 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[var(--ink)]/30 hover:bg-[var(--paper)]/80 hover:shadow-lg sm:p-7"
         >
-          <div
-            className={`flex items-center gap-2 mb-2 ${
-              isLeft ? "lg:justify-end" : "lg:justify-start"
-            }`}
-          >
-            <span className="font-mono text-xs uppercase font-bold text-[var(--ink)]/70 px-2.5 py-0.5 rounded-full bg-[var(--ink)]/10">
+          <div className="absolute inset-y-0 left-0 w-1 bg-[var(--ink)]/15 transition-colors duration-300 group-hover:bg-[var(--ink)]" />
+
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-2 border border-[var(--ink)]/15 bg-[var(--ink)]/[0.04] px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--ink)]/75">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--ink)]/60" />
               {item.period}
+            </span>
+
+            <span className="font-mono text-xs text-[var(--ink)]/40">
+              {String(index + 1).padStart(2, "0")}
             </span>
           </div>
 
-          <h3 className="font-anton text-2xl uppercase tracking-tight text-[var(--ink)] mb-1">
+          <h3 className="mb-2 font-anton text-xl uppercase leading-tight tracking-wide text-[var(--ink)] sm:text-2xl">
             {item.title}
           </h3>
 
-          <span className="font-inter font-semibold text-sm text-[var(--ink)]/80 mb-3 block">
+          <p className="mb-4 text-sm font-semibold leading-relaxed text-[var(--ink)]/75">
             {item.institution}
-          </span>
+          </p>
 
           {item.description && (
-            <p className="text-sm leading-relaxed text-[var(--ink)]/85 mb-4">
+            <p className="whitespace-pre-line text-sm leading-7 text-[var(--ink)]/80">
               {item.description}
             </p>
           )}
 
+          {item.id === "btech" && (
+            <div className="mt-6 border-t border-[var(--ink)]/15 pt-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h4 className="font-anton text-sm uppercase tracking-wider text-[var(--ink)]">
+                  CSE Core Knowledge
+                </h4>
+                <span className="font-mono text-xs text-[var(--ink)]/55">
+                  8 MODULES
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {[
+                  { name: "Data Structures & Algorithms", status: "Core" },
+                  { name: "Object-Oriented Programming", status: "Core" },
+                  { name: "Introduction to AI", status: "Core" },
+                  { name: "Design & Analysis of Algorithms", status: "Working" },
+                  { name: "Database Systems Design", status: "Working" },
+                  { name: "Discrete Structures", status: "Working" },
+                  { name: "Digital Systems Design", status: "Working" },
+                  { name: "Computing Paradigms", status: "Working" },
+                ].map((module) => (
+                  <div
+                    key={module.name}
+                    className="flex min-h-[64px] items-center justify-between gap-2 border border-[var(--ink)]/15 bg-[var(--paper)]/50 px-3 py-3"
+                  >
+                    <span className="text-xs font-medium leading-relaxed text-[var(--ink)] sm:text-sm">
+                      {module.name}
+                    </span>
+                    <span
+                      className={`shrink-0 border px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${
+                        module.status === "Core"
+                          ? "border-[var(--ink)]/25 bg-[var(--ink)]/10 text-[var(--ink)]"
+                          : "border-[var(--ink)]/15 text-[var(--ink)]/60"
+                      }`}
+                    >
+                      {module.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {item.link && (
-            <div
-              className={`mt-2 ${
-                isLeft ? "lg:flex lg:justify-end" : "lg:flex lg:justify-start"
-              }`}
-            >
+            <div className="mt-5">
               <a
                 href={item.link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--ink)] text-[var(--paper)] text-xs font-semibold uppercase tracking-wider hover:bg-[var(--plum)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ink)]"
+                className="inline-flex items-center gap-2 bg-[var(--ink)] px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--paper)] transition-colors hover:bg-[var(--plum)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ink)]"
               >
                 <span>{item.link.label}</span>
-                <IconArrowUpRight className="w-3.5 h-3.5" />
+                <IconArrowUpRight className="h-3.5 w-3.5" />
               </a>
             </div>
           )}
-        </motion.div>
+        </motion.article>
       </div>
 
-      {/* 16px Filled Center Node that scales in */}
-      <div className="absolute left-3 lg:left-1/2 -translate-x-1/2 flex items-center justify-center z-10">
+      <div className="absolute left-3 top-7 z-10 flex -translate-x-1/2 items-center justify-center lg:left-1/2">
         <motion.div
           initial={{ scale: 0 }}
           animate={isInView ? { scale: 1 } : { scale: 0 }}
-          transition={{ type: "spring", stiffness: 220, damping: 24 }}
-          className="w-4 h-4 rounded-full bg-[var(--ink)] border-2 border-[var(--mauve)] shadow-sm"
-        />
+          transition={{
+            type: "spring",
+            stiffness: 220,
+            damping: 22,
+          }}
+          className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--ink)]/30 bg-[var(--band-mauve)] shadow-sm"
+        >
+          <span className="h-2.5 w-2.5 rounded-full bg-[var(--ink)]" />
+        </motion.div>
       </div>
     </div>
   );
@@ -110,37 +167,41 @@ export default function Path() {
   return (
     <section
       id="path"
-      className="relative w-full bg-[var(--band-mauve)] band-padding border-t border-[var(--ink)]/20"
+      className="relative w-full border-t border-[var(--ink)]/20 bg-[var(--band-mauve)] band-padding"
     >
       <div className="content-constraint">
-        <div className="w-12 h-1 bg-[var(--ink)] mb-4" />
+        <p className="mb-4 font-mono text-xs font-semibold uppercase tracking-[0.3em] text-[var(--ink)]/65">
+          About
+        </p>
+
+        <span className="mb-4 block h-1 w-12 bg-[var(--ink)]" />
+
         <RevealLines
           as="h2"
           lines={["PATH"]}
-          className="display-l text-[var(--ink)] leading-none mb-16"
+          className="display-l mb-6 leading-none text-[var(--ink)]"
         />
 
-        {/* Timeline Container */}
+        <p className="mb-16 max-w-xl text-sm leading-relaxed text-[var(--ink)]/70 sm:text-base">
+          Education, milestones, and experiences shaping my path in technology.
+        </p>
+
         <div ref={containerRef} className="relative w-full">
-          {/* Vertical Self-Drawing SVG Line */}
-          {/* Desktop: Centered, Mobile: Left 12px */}
-          <div className="absolute top-0 bottom-0 left-3 lg:left-1/2 -translate-x-1/2 w-[3px] pointer-events-none">
-            {/* Background track line */}
-            <div className="absolute inset-0 bg-[var(--ink)]/20 w-full" />
-            {/* Scroll-drawing line */}
+          <div className="pointer-events-none absolute bottom-0 left-3 top-0 w-[2px] -translate-x-1/2 lg:left-1/2">
+            <div className="absolute inset-0 bg-[var(--ink)]/15" />
             <motion.div
               style={{ scaleY: pathLength }}
-              className="absolute top-0 left-0 w-full h-full bg-[var(--ink)] origin-top"
+              className="absolute left-0 top-0 h-full w-full origin-top bg-[var(--ink)]/70"
             />
           </div>
 
-          {/* Timeline Nodes */}
           <div className="relative z-10 flex flex-col">
-            {pathItems.map((item, idx) => (
+            {pathItems.map((item, index) => (
               <PathNodeCard
                 key={item.id}
                 item={item}
-                isLeft={idx % 2 === 0}
+                index={index}
+                isLeft={index % 2 === 0}
               />
             ))}
           </div>

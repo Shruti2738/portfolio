@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useSpring, useTransform } from "motion/react";
 import { SITE_CONTENT } from "@/content/site";
 import RevealLines from "./RevealLines";
+import ImageWithFallback from "./ImageFallback";
 
 function StatCounter({
   targetValue,
@@ -181,26 +182,31 @@ export default function About() {
             className="absolute bottom-12 right-12 w-4 h-4 bg-[var(--bronze)] pointer-events-none z-20"
           />
 
-          {/* Giant Distressed 3D Tilt SR Monogram */}
+          {/* Portrait space */}
           <motion.div
             style={
               isDesktop
-                ? {
-                    rotateX,
-                    rotateY,
-                    transformStyle: "preserve-3d",
-                  }
+                ? { rotateX, rotateY, transformStyle: "preserve-3d" }
                 : undefined
             }
-            className="relative flex items-center justify-center leading-none"
+            className="relative w-full max-w-[440px] aspect-[4/5] max-h-[560px] overflow-hidden border border-[var(--paper)]/20 bg-[var(--plum)] shadow-2xl"
           >
-            <span
-              className="font-anton text-[40vw] lg:text-[22vw] text-[var(--plum)] tracking-tighter opacity-90 block leading-none select-none filter contrast-125"
-              style={{
-                textShadow: "0 0 40px rgba(94, 35, 60, 0.4)",
-              }}
-            >
-              SR
+            <ImageWithFallback
+              src="/images/introshot.png"
+              alt="Portrait of Shruti Ravikumar"
+              fill
+              className="object-cover object-center"
+              fallbackBg="var(--plum)"
+              fallbackColor="var(--paper)"
+              fallbackContent={
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[var(--plum)] p-6 text-center text-[var(--paper)]">
+                  <span className="text-5xl" aria-hidden="true">＋</span>
+                  <span className="font-mono text-xs uppercase tracking-[0.2em]">Add your portrait</span>
+                </div>
+              }
+            />
+            <span className="absolute bottom-4 left-4 z-10 bg-[var(--plum)]/90 px-3 py-1 font-mono text-xs uppercase tracking-widest text-[var(--paper)]">
+              Shruti Ravikumar
             </span>
           </motion.div>
         </div>

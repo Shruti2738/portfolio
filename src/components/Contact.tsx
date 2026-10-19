@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { SITE_CONTENT } from "@/content/site";
 import RevealLines from "./RevealLines";
 import Magnetic from "./Magnetic";
@@ -14,12 +14,15 @@ import {
   IconCheck,
 } from "./Icons";
 
+type FormField = "name" | "email" | "message";
+type FormStatus = "idle" | "sending" | "success" | "error";
+
 export default function Contact() {
   const [formState, setFormState] = useState({
     name: "",
     email: "",
     message: "",
-    company: "", // honeypot
+    company: "",
   });
 
   const [touched, setTouched] = useState({
@@ -35,51 +38,51 @@ export default function Contact() {
     server: "",
   });
 
-  const [status, setStatus] = useState<
-    "idle" | "sending" | "success" | "error"
-  >("idle");
-
+  const [status, setStatus] = useState<FormStatus>("idle");
   const [copied, setCopied] = useState(false);
-  const renderTimestamp = useRef(0);
 
-  useEffect(() => {
-    renderTimestamp.current = Date.now();
-  }, []);
-
-  const validateField = (field: "name" | "email" | "message", value: string) => {
+  const validateField = (field: FormField, value: string): boolean => {
     let error = "";
+
     if (field === "name") {
-      if (!value.trim() || value.trim().length < 2) {
+      if (value.trim().length < 2) {
         error = "Enter your name (2 characters or more)";
       }
-    } else if (field === "email") {
+    }
+
+    if (field === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!value.trim() || !emailRegex.test(value)) {
+
+      if (!value.trim() || !emailRegex.test(value.trim())) {
         error = "Enter a valid email";
       }
-    } else if (field === "message") {
-      if (!value.trim() || value.trim().length < 10) {
+    }
+
+    if (field === "message") {
+      if (value.trim().length < 10) {
         error = "Write at least 10 characters";
       } else if (value.length > 2000) {
         error = "Message must be under 2000 characters";
       }
     }
+
     setErrors((prev) => ({ ...prev, [field]: error }));
     return error === "";
   };
 
-  const handleBlur = (field: "name" | "email" | "message") => {
+  const handleBlur = (field: FormField) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     validateField(field, formState[field]);
   };
 
   const handleChange = (
-    field: "name" | "email" | "message" | "company",
+    field: FormField | "company",
     value: string
   ) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    if (touched[field as keyof typeof touched]) {
-      validateField(field as "name" | "email" | "message", value);
+
+    if (field !== "company" && touched[field]) {
+      validateField(field, value);
     }
   };
 
@@ -88,16 +91,28 @@ export default function Contact() {
       await navigator.clipboard.writeText(SITE_CONTENT.personal.email);
       setCopied(true);
       showToast("Email copied to clipboard");
-      setTimeout(() => setCopied(false), 2000);
+
+      window.setTimeout(() => {
+        setCopied(false);
+      }, 2000);
     } catch {
-      showToast("shrutirj307@gmail.com");
+      showToast("Could not copy email. Email: " + SITE_CONTENT.personal.email);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setTouched({ name: true, email: true, message: true });
+    if (formState.company.trim() !== "") {
+      return;
+    }
+
+    setTouched({
+      name: true,
+      email: true,
+      message: true,
+    });
+
     const isNameValid = validateField("name", formState.name);
     const isEmailValid = validateField("email", formState.email);
     const isMessageValid = validateField("message", formState.message);
@@ -109,39 +124,52 @@ export default function Contact() {
     setStatus("sending");
     setErrors((prev) => ({ ...prev, server: "" }));
 
+    const subject = "Portfolio message from " + formState.name;
+
+    const body = [
+      "Name: " + formState.name,
+      "Email: " + formState.email,
+      "",
+      "Message:",
+      formState.message,
+    ].join("\n");
+
+    const mailtoUrl =
+      "mailto:" +
+      SITE_CONTENT.personal.email +
+      "?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body);
+
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formState.name,
-          email: formState.email,
-          message: formState.message,
-          company: formState.company,
-          ts: renderTimestamp.current,
-        }),
+      window.location.href = mailtoUrl;
+
+      setStatus("success");
+      firePaletteConfetti();
+      showToast("Your email app is opening with your message.");
+
+      setFormState({
+        name: "",
+        email: "",
+        message: "",
+        company: "",
       });
 
-      const data = await res.json();
-
-      if (res.ok && data.ok) {
-        setStatus("success");
-        firePaletteConfetti();
-        showToast("Sent. I'll reply soon.");
-        setFormState({ name: "", email: "", message: "", company: "" });
-        setTouched({ name: false, email: false, message: false });
-      } else {
-        setStatus("error");
-        setErrors((prev) => ({
-          ...prev,
-          server: data.error || "Failed to deliver message. Please try again or email directly.",
-        }));
-      }
+      setTouched({
+        name: false,
+        email: false,
+        message: false,
+      });
     } catch {
       setStatus("error");
+
       setErrors((prev) => ({
         ...prev,
-        server: "Network error occurred. Please email directly to shrutirj307@gmail.com.",
+        server:
+          "Could not open your email app. Please email directly to " +
+          SITE_CONTENT.personal.email +
+          ".",
       }));
     }
   };
@@ -149,44 +177,47 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative w-full border-t border-[var(--paper)]/15 overflow-hidden"
+      className="relative w-full overflow-hidden border-t border-[var(--paper)]/15"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[560px]">
-        {/* Block 1: Left 4 Cols (--plum, --paper text) */}
-        <div className="lg:col-span-4 bg-[var(--plum)] p-8 sm:p-12 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[var(--paper)]/15">
+      <div className="grid min-h-[560px] grid-cols-1 lg:grid-cols-12">
+        {/* Introduction */}
+        <div className="flex flex-col justify-between border-b border-[var(--paper)]/15 bg-[var(--plum)] p-8 sm:p-12 lg:col-span-4 lg:border-b-0 lg:border-r lg:p-16">
           <div>
-            <span className="w-12 h-1 bg-[var(--bronze)] block mb-6" />
+            <span className="mb-6 block h-1 w-12 bg-[var(--bronze)]" />
+
             <RevealLines
               as="h2"
               lines={["LET'S BUILD", "SOMETHING."]}
-              className="display-l text-[var(--paper)] leading-[0.9] tracking-tight uppercase"
+              className="display-l uppercase leading-[0.9] tracking-tight text-[var(--paper)]"
             />
           </div>
 
-          <div className="mt-8 pt-8 border-t border-[var(--paper)]/20">
-            <p className="text-sm sm:text-base leading-relaxed text-[var(--paper)]/80 max-w-[28ch]">
-              Available for high-impact software engineering, AI vision systems, and robotics initiatives.
+          <div className="mt-8 border-t border-[var(--paper)]/20 pt-8">
+            <p className="max-w-[28ch] text-sm leading-relaxed text-[var(--paper)]/80 sm:text-base">
+              Available for high-impact software engineering, AI vision
+              systems, and robotics initiatives.
             </p>
           </div>
         </div>
 
-        {/* Block 2: Middle 3 Cols (--cream, --umber text) */}
-        <div className="lg:col-span-3 bg-[var(--band-cream)] p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[var(--umber)]/20">
+        {/* Direct channels */}
+        <div className="flex flex-col justify-between border-b border-[#35251F]/20 bg-[#F3E9DC] p-8 text-[#35251F] sm:p-12 lg:col-span-3 lg:border-b-0 lg:border-r">
           <div>
-            <span className="font-anton text-xl uppercase tracking-wider text-[var(--bronze)] mb-8 block">
+            <span className="mb-8 block font-anton text-xl uppercase tracking-wider text-[#8A5B36]">
               Direct Channels
             </span>
 
             <div className="flex flex-col gap-6">
-              {/* Email Row with Copy Ghost Button */}
+              {/* Email */}
               <div className="flex flex-col gap-2">
-                <span className="text-xs uppercase font-semibold text-[var(--umber)]/60">
+                <span className="text-xs font-semibold uppercase text-[#5A463D]">
                   Email
                 </span>
+
                 <div className="flex items-center justify-between gap-2">
                   <a
-                    href={`mailto:${SITE_CONTENT.personal.email}`}
-                    className="font-inter font-semibold text-sm text-[var(--umber)] hover:text-[var(--plum)] truncate"
+                    href={"mailto:" + SITE_CONTENT.personal.email}
+                    className="truncate text-sm font-semibold text-[#35251F] hover:text-[#65405D]"
                   >
                     {SITE_CONTENT.personal.email}
                   </a>
@@ -196,76 +227,77 @@ export default function Contact() {
                     onClick={handleCopyEmail}
                     title="Copy email address"
                     aria-label="Copy email address"
-                    className="p-1.5 rounded border border-[var(--umber)]/30 text-[var(--umber)] hover:bg-[var(--plum)] hover:text-[var(--paper)] transition-colors cursor-pointer"
+                    className="cursor-pointer rounded border border-[#35251F]/30 p-1.5 text-[#35251F] transition-colors hover:bg-[#65405D] hover:text-white"
                   >
                     {copied ? (
-                      <IconCheck className="w-4 h-4 text-green-700" />
+                      <IconCheck className="h-4 w-4 text-green-700" />
                     ) : (
-                      <IconCopy className="w-4 h-4" />
+                      <IconCopy className="h-4 w-4" />
                     )}
                   </button>
                 </div>
               </div>
 
-              {/* LinkedIn Row with Sliding Arrow */}
-              <div className="flex flex-col gap-2 pt-4 border-t border-[var(--umber)]/15">
-                <span className="text-xs uppercase font-semibold text-[var(--umber)]/60">
+              {/* LinkedIn */}
+              <div className="flex flex-col gap-2 border-t border-[#35251F]/15 pt-4">
+                <span className="text-xs font-semibold uppercase text-[#5A463D]">
                   Professional Network
                 </span>
+
                 <a
                   href={SITE_CONTENT.personal.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between font-inter font-semibold text-sm text-[var(--umber)] hover:text-[var(--plum)]"
+                  className="group flex items-center justify-between text-sm font-semibold text-[#35251F] hover:text-[#65405D]"
                 >
                   <span className="flex items-center gap-2">
-                    <IconLinkedIn className="w-4 h-4 text-[var(--bronze)]" />
+                    <IconLinkedIn className="h-4 w-4 text-[#8A5B36]" />
                     <span>LinkedIn</span>
                   </span>
-                  <span className="transition-transform duration-200 group-hover:translate-x-1.5">
-                    <IconArrowUpRight className="w-4 h-4" />
-                  </span>
+
+                  <IconArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </a>
               </div>
 
-              {/* GitHub Row with Sliding Arrow */}
-              <div className="flex flex-col gap-2 pt-4 border-t border-[var(--umber)]/15">
-                <span className="text-xs uppercase font-semibold text-[var(--umber)]/60">
+              {/* GitHub */}
+              <div className="flex flex-col gap-2 border-t border-[#35251F]/15 pt-4">
+                <span className="text-xs font-semibold uppercase text-[#5A463D]">
                   Open Source Code
                 </span>
+
                 <a
                   href={SITE_CONTENT.personal.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between font-inter font-semibold text-sm text-[var(--umber)] hover:text-[var(--plum)]"
+                  className="group flex items-center justify-between text-sm font-semibold text-[#35251F] hover:text-[#65405D]"
                 >
                   <span className="flex items-center gap-2">
-                    <IconGitHub className="w-4 h-4 text-[var(--bronze)]" />
+                    <IconGitHub className="h-4 w-4 text-[#8A5B36]" />
                     <span>GitHub</span>
                   </span>
-                  <span className="transition-transform duration-200 group-hover:translate-x-1.5">
-                    <IconArrowUpRight className="w-4 h-4" />
-                  </span>
+
+                  <IconArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 text-xs font-mono text-[var(--umber)]/60">
+          <div className="mt-8 font-mono text-xs text-[#5A463D]">
             IIITDM KANCHEEPURAM // CHENNAI
           </div>
         </div>
 
-        {/* Block 3: Right 5 Cols (--umber, --paper text) Form */}
-        <div className="lg:col-span-5 bg-[var(--band-umber)] p-8 sm:p-12 lg:p-16 flex flex-col justify-center">
+        {/* Contact form */}
+        <div className="flex flex-col justify-center bg-[#35251F] p-8 sm:p-12 lg:col-span-5 lg:p-16">
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="flex flex-col gap-8 w-full max-w-lg mx-auto"
+            className="mx-auto flex w-full max-w-lg flex-col gap-8"
           >
-            {/* Honeypot field (hidden from view) */}
+            {/* Honeypot field */}
             <div className="hidden" aria-hidden="true">
               <label htmlFor="company-field">Company</label>
+
               <input
                 id="company-field"
                 type="text"
@@ -277,7 +309,7 @@ export default function Contact() {
               />
             </div>
 
-            {/* Field: Name with floating label and animated underline */}
+            {/* Name */}
             <div className="relative pt-4">
               <input
                 id="name"
@@ -286,32 +318,33 @@ export default function Contact() {
                 onChange={(e) => handleChange("name", e.target.value)}
                 onBlur={() => handleBlur("name")}
                 required
-                className="peer w-full bg-transparent py-2.5 text-base text-[var(--paper)] border-none outline-none focus:outline-none"
+                autoComplete="name"
+                className="peer w-full border-none bg-transparent py-2.5 text-base text-[#F3E9DC] outline-none focus:outline-none"
               />
+
               <label
                 htmlFor="name"
-                className={`absolute left-0 pointer-events-none transition-all duration-300 font-medium ${
-                  formState.name
-                    ? "top-0 text-xs text-[var(--bronze)] font-semibold"
-                    : "top-5 text-sm text-[var(--paper)]/60 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--bronze)] peer-focus:font-semibold"
-                }`}
+                className={
+                  "pointer-events-none absolute left-0 font-medium transition-all duration-300 " +
+                  (formState.name
+                    ? "top-0 text-xs font-semibold text-[#D0A16B]"
+                    : "top-5 text-sm text-[#F3E9DC]/70 peer-focus:top-0 peer-focus:text-xs peer-focus:font-semibold peer-focus:text-[#D0A16B]")
+                }
               >
                 Your Name
               </label>
 
-              {/* Base Underline */}
-              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[var(--paper)]/40" />
-              {/* Focus Underline animating from left */}
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--bronze)] origin-left scale-x-0 transition-transform duration-350 peer-focus:scale-x-100" />
+              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#F3E9DC]/40" />
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] origin-left scale-x-0 bg-[#D0A16B] transition-transform duration-300 peer-focus:scale-x-100" />
 
               {touched.name && errors.name && (
-                <span className="text-xs text-[var(--mauve)] mt-1.5 block">
+                <span className="mt-1.5 block text-xs text-[#E8A6A6]">
                   {errors.name}
                 </span>
               )}
             </div>
 
-            {/* Field: Email */}
+            {/* Email */}
             <div className="relative pt-4">
               <input
                 id="email"
@@ -320,30 +353,33 @@ export default function Contact() {
                 onChange={(e) => handleChange("email", e.target.value)}
                 onBlur={() => handleBlur("email")}
                 required
-                className="peer w-full bg-transparent py-2.5 text-base text-[var(--paper)] border-none outline-none focus:outline-none"
+                autoComplete="email"
+                className="peer w-full border-none bg-transparent py-2.5 text-base text-[#F3E9DC] outline-none focus:outline-none"
               />
+
               <label
                 htmlFor="email"
-                className={`absolute left-0 pointer-events-none transition-all duration-300 font-medium ${
-                  formState.email
-                    ? "top-0 text-xs text-[var(--bronze)] font-semibold"
-                    : "top-5 text-sm text-[var(--paper)]/60 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--bronze)] peer-focus:font-semibold"
-                }`}
+                className={
+                  "pointer-events-none absolute left-0 font-medium transition-all duration-300 " +
+                  (formState.email
+                    ? "top-0 text-xs font-semibold text-[#D0A16B]"
+                    : "top-5 text-sm text-[#F3E9DC]/70 peer-focus:top-0 peer-focus:text-xs peer-focus:font-semibold peer-focus:text-[#D0A16B]")
+                }
               >
                 Email Address
               </label>
 
-              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[var(--paper)]/40" />
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--bronze)] origin-left scale-x-0 transition-transform duration-350 peer-focus:scale-x-100" />
+              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#F3E9DC]/40" />
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] origin-left scale-x-0 bg-[#D0A16B] transition-transform duration-300 peer-focus:scale-x-100" />
 
               {touched.email && errors.email && (
-                <span className="text-xs text-[var(--mauve)] mt-1.5 block">
+                <span className="mt-1.5 block text-xs text-[#E8A6A6]">
                   {errors.email}
                 </span>
               )}
             </div>
 
-            {/* Field: Message */}
+            {/* Message */}
             <div className="relative pt-4">
               <textarea
                 id="message"
@@ -353,68 +389,72 @@ export default function Contact() {
                 onBlur={() => handleBlur("message")}
                 required
                 maxLength={2000}
-                className="peer w-full bg-transparent py-2.5 text-base text-[var(--paper)] border-none outline-none resize-none focus:outline-none"
+                className="peer w-full resize-none border-none bg-transparent py-2.5 text-base text-[#F3E9DC] outline-none focus:outline-none"
               />
+
               <label
                 htmlFor="message"
-                className={`absolute left-0 pointer-events-none transition-all duration-300 font-medium ${
-                  formState.message
-                    ? "top-0 text-xs text-[var(--bronze)] font-semibold"
-                    : "top-5 text-sm text-[var(--paper)]/60 peer-focus:top-0 peer-focus:text-xs peer-focus:text-[var(--bronze)] peer-focus:font-semibold"
-                }`}
+                className={
+                  "pointer-events-none absolute left-0 font-medium transition-all duration-300 " +
+                  (formState.message
+                    ? "top-0 text-xs font-semibold text-[#D0A16B]"
+                    : "top-5 text-sm text-[#F3E9DC]/70 peer-focus:top-0 peer-focus:text-xs peer-focus:font-semibold peer-focus:text-[#D0A16B]")
+                }
               >
                 Project Message
               </label>
 
-              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[var(--paper)]/40" />
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--bronze)] origin-left scale-x-0 transition-transform duration-350 peer-focus:scale-x-100" />
+              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#F3E9DC]/40" />
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] origin-left scale-x-0 bg-[#D0A16B] transition-transform duration-300 peer-focus:scale-x-100" />
 
-              <div className="flex justify-between items-center mt-1.5 text-xs text-[var(--paper)]/60">
+              <div className="mt-1.5 flex items-center justify-between text-xs text-[#F3E9DC]/70">
                 <span>
                   {touched.message && errors.message ? (
-                    <span className="text-[var(--mauve)]">{errors.message}</span>
+                    <span className="text-[#E8A6A6]">{errors.message}</span>
                   ) : null}
                 </span>
+
                 <span className="font-mono">
                   {formState.message.length} / 2000
                 </span>
               </div>
             </div>
 
-            {/* Server Error Message */}
+            {/* Server error */}
             {errors.server && (
               <div
                 role="alert"
                 aria-live="polite"
-                className="p-3 bg-[var(--plum)] text-[var(--paper)] border border-[var(--mauve)] text-xs"
+                className="border border-[#E8A6A6] bg-[#65405D] p-3 text-xs text-[#F3E9DC]"
               >
                 {errors.server}
               </div>
             )}
 
-            {/* Magnetic Submit Button (60px high, full width, bronze fill with ink text) */}
+            {/* Submit button */}
             <Magnetic strength={0.15} radius={80} className="w-full">
               <button
                 type="submit"
                 disabled={status === "sending" || status === "success"}
                 aria-live="polite"
-                className={`w-full h-[60px] font-anton text-lg uppercase tracking-wider flex items-center justify-center transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--paper)] cursor-pointer select-none ${
-                  status === "success"
+                className={
+                  "flex h-[60px] w-full cursor-pointer select-none items-center justify-center font-anton text-lg uppercase tracking-wider transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F3E9DC] " +
+                  (status === "success"
                     ? "bg-green-700 text-white"
                     : status === "sending"
-                    ? "bg-[var(--bronze)]/70 text-[var(--ink)] cursor-wait"
-                    : "bg-[var(--bronze)] text-[var(--ink)] hover:bg-[var(--paper)] hover:text-[var(--umber)]"
-                }`}
+                    ? "cursor-wait bg-[#D0A16B]/70 text-[#35251F]"
+                    : "bg-[#D0A16B] text-[#35251F] hover:bg-[#F3E9DC] hover:text-[#35251F]")
+                }
               >
                 {status === "sending" ? (
                   <span className="flex items-center gap-3">
-                    <span className="w-4 h-4 border-2 border-[var(--ink)] border-t-transparent rounded-full animate-spin" />
-                    <span>Sending...</span>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#35251F] border-t-transparent" />
+                    <span>Opening email...</span>
                   </span>
                 ) : status === "success" ? (
                   <span className="flex items-center gap-2">
-                    <IconCheck className="w-5 h-5" />
-                    <span>Sent. I&apos;ll reply soon.</span>
+                    <IconCheck className="h-5 w-5" />
+                    <span>Email app opened</span>
                   </span>
                 ) : (
                   <span>Send message</span>
