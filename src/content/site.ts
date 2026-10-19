@@ -80,7 +80,7 @@ export const SITE_CONTENT = {
     email: "shrutirj307@gmail.com",
     linkedin: "https://linkedin.com/in/shruti-ravikumar-8a0053365",
     github: "https://github.com/Shruti2738",
-    cvUrl: "/Shruti_Ravikumar_CV.pdf",
+    cvUrl: "/cv.pdf",
     profile:
       "Computer Science undergraduate at IIITDM Kancheepuram with hands-on experience in software development, AI/computer vision, robotics, DevOps, and data analytics. Winner of the Bharat Nirman Track at DECODE SIH 2026, with experience developing automation pipelines, AI-powered systems, and robotics applications through hackathons and technical projects.",
   },
