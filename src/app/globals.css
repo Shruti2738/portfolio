@@ -1,26 +1,167 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Luminous high-contrast palette */
+  --cream: #FAF7F0; /* Clean luminous ivory/alabaster */
+  --beige-accent: #E2D7BF; /* Warm beige for rules & accents */
+  --plum: #4F162F; /* Deep royal plum */
+  --umber: #1E120A; /* Deep espresso black-umber (15.8:1 contrast on cream) */
+  --bronze: #8D6B42; /* Warm bronze accent */
+  --olive: #3D4433; /* Deep forest olive */
+  --mauve: #7D616F; /* Sophisticated mauve */
+  --paper: #FFFFFF; /* Pure crisp bright white */
+  --paper-soft: #FDFBF7; /* Warm soft white */
+  --ink: #110B07; /* Crisp dark ink */
+
+  /* Theme-adaptive band variables */
+  --band-cream: #FAF7F0;
+  --band-plum: #4F162F;
+  --band-umber: #1E120A;
+  --band-olive: #3D4433;
+  --band-mauve: #7D616F;
+  --text-main: #1E120A;
+  --text-inverse: #FFFFFF;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="night"] {
+  --band-cream: #3A0F21; /* Cream becomes deep plum */
+  --band-plum: #240A15; /* Plum becomes deep night plum */
+  --band-umber: #150C07; /* Umber becomes dark espresso */
+  --band-olive: #2B3024; /* Olive becomes deep night olive */
+  --band-mauve: #42303A; /* Mauve becomes deep night mauve */
+  --text-main: #FFFFFF; /* All text becomes pure crisp white */
+  --text-inverse: #FFFFFF;
+  --cream: #FAF7F0;
+  --paper: #FFFFFF;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-cream: var(--cream);
+  --color-plum: var(--plum);
+  --color-umber: var(--umber);
+  --color-bronze: var(--bronze);
+  --color-olive: var(--olive);
+  --color-mauve: var(--mauve);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+
+  --color-band-cream: var(--band-cream);
+  --color-band-plum: var(--band-plum);
+  --color-band-umber: var(--band-umber);
+  --color-band-olive: var(--band-olive);
+  --color-band-mauve: var(--band-mauve);
+
+  --font-display: var(--font-anton), Impact, sans-serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: auto;
+  background-color: var(--band-cream);
+  color: var(--text-main);
+  font-family: var(--font-body);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-color: var(--band-cream);
+  color: var(--text-main);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+/* Fluid Typography */
+.display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 11.5vw, 200px);
+  line-height: 0.88;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.display-l {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 112px);
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.display-m {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.6vw, 56px);
+  line-height: 1.05;
+}
+
+.font-anton {
+  font-family: var(--font-display);
+}
+
+.font-inter {
+  font-family: var(--font-body);
+}
+
+/* Accessible focus outlines */
+:focus-visible {
+  outline: 3px solid var(--bronze);
+  outline-offset: 3px;
+}
+
+.dark-focus :focus-visible,
+[data-theme-contrast="dark"] :focus-visible {
+  outline: 3px solid var(--paper);
+  outline-offset: 3px;
+}
+
+/* Film grain overlay */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+}
+
+/* Max content constraint */
+.content-constraint {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(20px, 4vw, 64px);
+  padding-right: clamp(20px, 4vw, 64px);
+}
+
+.band-padding {
+  padding-top: clamp(72px, 10vw, 140px);
+  padding-bottom: clamp(72px, 10vw, 140px);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--plum);
+  color: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
